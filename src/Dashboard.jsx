@@ -3,6 +3,7 @@ import Card from './Card'
 import Card1  from './Card1'
 import Card2 from './Card2'
 import Card3 from './Card3'
+import Button from './Button'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,7 +13,8 @@ import {
   ArcElement,
   PointElement,
   Tooltip,
-  Legend
+  Legend,
+  scales
 }from "chart.js"
 
 import {Bar , Line , Doughnut} from "react-chartjs-2"
@@ -57,6 +59,23 @@ const linedata = {
       backgroundColor:"#4361ee",
     },
   ],
+  scales:{
+    x:{
+      grid:{
+        display:false,
+      }
+    },
+    y:{
+      min:0,
+      max:150,
+      ticks:{
+        stepSize : 50
+      },
+      grid:{
+        display:false,
+      }
+    },
+  },
 }
 
 const Doughnutdata = {
@@ -65,9 +84,9 @@ const Doughnutdata = {
     {
       data:[100],
       backgroundColor:["#4361ee"],
-      cutout:"80%"
-    }
-  ]
+      cutout:"70%"
+    },
+  ],
 }
 const options = {
   responsive: true,
@@ -99,7 +118,11 @@ const options = {
     },
 
     y: {
+      min:0, 
+      max:150,
+      
       grid: {
+        display: false ,
         color: "#f1f5f9",
       },
       ticks: {
@@ -122,8 +145,8 @@ const Dashboard = () => {
 <Card3/>
 
     </div>
-    <div className=' flex gap-10 justify-center border items-center  '>
-      <div className="bg-white p-5 rounded-xl shadow-md">
+    <div className=' flex gap-10 justify-center  items-center p-5 '>
+      <div className="bg-white p-5  w-[600px] rounded-xl shadow-xl">
 
   <h2 className="text-lg font-semibold mb-4 text-gray-800">
     Budget vs. Actual Spending
@@ -132,11 +155,20 @@ const Dashboard = () => {
   <Bar data={barData} options={options} />
 
 </div>
-<div className='border h-70 w-70 p-2 flex justify-center items-center'>
+<div className='shadow-2xl h-80 w-[600px] rounded-md p-2 flex justify-center items-center'>
+<div className='h-45 w-45  '><Doughnut   data={Doughnutdata}/></div>
+</div>
+
+</div>
+<div className='flex gap-10  justify-center items-center'>
+<div className='h-100 w-[650px] shadow-2xl p-10  w-[500px] m-2'><b>Spending trend</b><Line data={linedata}/></div>
+<div className=''><h3 className='ml-5 p-2 font-bold'>Expense by category</h3>
+<div className='shadow-2xl h-80 w-[600px] rounded-2xl p-2 flex justify-center items-center'>
 <div className='h-45 w-45  '><Doughnut   data={Doughnutdata}/></div>
 </div>
 </div>
-<div className='h-60 border w-[500px] m-2'><Line data={linedata}/></div>
+</div>
+<Button/>
 
 
     </>
