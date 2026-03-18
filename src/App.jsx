@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import Navbar from './Navbar'
 import Dashboard from './Dashboard'
+import Table from  "./Table"
 
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
     <>
 <Navbar/>
 <Dashboard/>
+<Table/>
     </>
   )
 }
