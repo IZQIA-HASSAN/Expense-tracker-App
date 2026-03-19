@@ -4,7 +4,7 @@ import logout from "./assets/logout.svg"
 
 const Navbar = () => {
     return (
-        <div className=' flex justify-around shadow-md w-full bg-gray-100 '>
+        <div className=' flex justify-around shadow-md w-full bg-white '>
             <li className='flex items-center  h-17'><img src={logo} className='h-20 w-20' alt="" /><h1 className='text-2xl font-bold'>Expensify</h1></li>
             <ul className=' flex gap-3 justify-center items-center' >
                 <li>Welcome,</li>

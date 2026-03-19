@@ -1,13 +1,23 @@
 import React, { useState } from 'react'
 import cross from "./assets/cross.svg"
 
-const Card1 = () => {
-  const [showexpense , setShowexpense] = useState(false)
+const Expenser = ({expenses , setExpense}) => {
+    const [showexpense , setShowexpense] = useState(false)
+
+  const handlesubmit = () =>{
+    e.preventDefault();
+const amount = Number(e.target.amount.value)
+if(isNaN(amount || amount <= 0)) return
+setExpense(prev => prev + amount)
+e.target.reset()
+setShowexpense(false)
+
+  }
   return (
     <div>
         <div className='border-4 border-red-600 h-45 w-70 p-5 rounded-md shadow-2xl '>
 <p className='font-light'>Total Expenses</p>
-<h1 className='text-2xl text-red-600 font-bold p-2'> $0.00</h1>
+<h1 className='text-2xl text-red-600 font-bold p-2'> ${expenses}</h1>
 <button onClick={()=> setShowexpense(true)} className='bg-red-100 h-10 w-full rounded-md mt-4 text-red-600 font-bold transition-all ease-out duration-150 hover:scale-105 hover:bg-red-100'>Add Expense</button>
 {showexpense &&(
   <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/30 z-40">
@@ -26,7 +36,8 @@ const Card1 = () => {
     </div>
   
     <div className="flex flex-col">
-  
+
+      <form onSubmit={handlesubmit}>  
       <div className="flex flex-col p-3">
         <label className="text-sm font-medium mb-1">Name</label>
         <input className="border border-gray-300 rounded-md h-10 p-2 focus:outline-none "
@@ -36,7 +47,7 @@ const Card1 = () => {
       <div className="flex flex-col p-3">
         <label className="text-sm font-medium mb-1">Amount ($)</label>
         <input className="border border-gray-300 rounded-md h-10 p-2 focus:outline-none "
-        type="number" placeholder="0.0" />
+        type="number" name='amount' placeholder="0.0" />
       </div>
       <div className="flex flex-col p-3">
         <label className="text-sm font-medium mb-1">Category</label>
@@ -68,7 +79,7 @@ const Card1 = () => {
           Save income
         </button>
       </div>
-  
+  </form>
     </div>
   
   </div>
@@ -80,4 +91,4 @@ const Card1 = () => {
   )
 }
 
-export default Card1
+export default Expenser

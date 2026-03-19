@@ -1,7 +1,8 @@
 import React from 'react'
-import Card from './Card'
-import Card1  from './Card1'
-import Card2 from './Card2'
+import { useState , useEffect} from 'react'
+import Currentbalance from './Currentbalance'
+import Expenser  from './Expenser'
+import Showincome from './Showincome'
 import Card3 from './Card3'
 import Button from './Button'
 import {
@@ -18,6 +19,7 @@ import {
 }from "chart.js"
 
 import {Bar , Line , Doughnut} from "react-chartjs-2"
+import Expenses from './Expenser'
 
 ChartJS.register(
   CategoryScale,
@@ -131,16 +133,41 @@ const options = {
     },
   },
 };
+
+
 const Dashboard = () => {
+  
+     const [income, setIncome] = useState(() => {
+    const saved = localStorage.getItem("income")
+    const parsed = Number(saved)
+    return isNaN(parsed) ? 0 : parsed  
+  })
+
+  const [expenses ,setExpenses] = useState(()=>{
+    const saved = localStorage.getItem("expenses")
+    return  saved ? JSON.parse(saved) : []
+  })
+
+  useEffect(() => {
+  localStorage.setItem("income", income)
+}, [income])
+
+useEffect(()=>{
+  localStorage.setItem("expenses" , JSON.stringify(expenses))
+}, [expenses])
+
+const balance = income - expenses.reduce((acc, exp) => acc + exp.amount, 0);
+
+
   return (
     <>
-    <div className=' flex gap-10 items-center justify-center mt-10'>
+    <div className=' flex gap-10  items-center justify-center mt-10'>
         {/* no one div */}
-<Card/>
+<Currentbalance balance={balance}/>
 {/* no 2 div */}
-<Card2/>
+<Showincome  income={income} setIncome={setIncome}/>
 {/* no 3 div */}
-<Card1/>
+<Expenser expenses={expenses} setExpense={setExpenses}/>
 {/* no 4 div */}
 <Card3/>
 
