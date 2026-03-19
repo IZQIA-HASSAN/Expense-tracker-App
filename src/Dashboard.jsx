@@ -1,7 +1,7 @@
 import React from 'react'
-import { useState , useEffect} from 'react'
+import { useState, useEffect } from 'react'
 import Currentbalance from './Currentbalance'
-import Expenser  from './Expenser'
+import Expenser from './Expenser'
 import Showincome from './Showincome'
 import Card3 from './Card3'
 import Button from './Button'
@@ -16,9 +16,9 @@ import {
   Tooltip,
   Legend,
   scales
-}from "chart.js"
+} from "chart.js"
 
-import {Bar , Line , Doughnut} from "react-chartjs-2"
+import { Bar, Line, Doughnut } from "react-chartjs-2"
 import Expenses from './Expenser'
 
 ChartJS.register(
@@ -33,169 +33,192 @@ ChartJS.register(
 )
 
 // bar data
-const barData = {
-  labels:["Food" , "Transport"],
-  datasets:[
-    {
-      label:"Actual spent",
-      data : [100 ,0 ],
-      backgroundColor: "#ff4d6d",
-      barThickness:15,
-    },
-    {
-      label:"Budget Limit",
-      data : [10 , 200],
-      backgroundColor : "#4361ee",
-      barThickness:15,
-    },
-  ],
-}
-
-const linedata = {
-  labels : ["2026-03-13"],
-  datasets:[
-    {
-      label:"Spending",
-      data : [100],
-      borderColor :"#4361ee",
-      backgroundColor:"#4361ee",
-    },
-  ],
-  scales:{
-    x:{
-      grid:{
-        display:false,
-      }
-    },
-    y:{
-      min:0,
-      max:150,
-      ticks:{
-        stepSize : 50
-      },
-      grid:{
-        display:false,
-      }
-    },
-  },
-}
-
-const Doughnutdata = {
-  labels :["Food"],
-  datasets:[
-    {
-      data:[100],
-      backgroundColor:["#4361ee"],
-      cutout:"70%"
-    },
-  ],
-}
-const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: "bottom",
-      labels: {
-        boxWidth: 12,
-        padding: 20,
-        color: "#6b7280",
-        font: {
-          size: 12,
-        },
-      },
-    },
-  },
-
-  scales: {
-    x: {
-      grid: {
-        display: false,
-      },
-      ticks: {
-        color: "#6b7280",
-        font: {
-          size: 12,
-        },
-      },
-    },
-
-    y: {
-      min:0, 
-      max:150,
-      
-      grid: {
-        display: false ,
-        color: "#f1f5f9",
-      },
-      ticks: {
-        color: "#6b7280",
-      },
-    },
-  },
-};
 
 
 const Dashboard = () => {
-  
-     const [income, setIncome] = useState(() => {
+
+
+
+
+  const [income, setIncome] = useState(() => {
     const saved = localStorage.getItem("income")
     const parsed = Number(saved)
-    return isNaN(parsed) ? 0 : parsed  
+    return isNaN(parsed) ? 0 : parsed
   })
 
-  const [expenses ,setExpenses] = useState(()=>{
+  const [expenses, setExpenses] = useState(() => {
     const saved = localStorage.getItem("expenses")
-    return  saved ? JSON.parse(saved) : []
+    return saved ? JSON.parse(saved) : []
   })
 
   useEffect(() => {
-  localStorage.setItem("income", income)
-}, [income])
+    localStorage.setItem("income", income)
+  }, [income])
 
-useEffect(()=>{
-  localStorage.setItem("expenses" , JSON.stringify(expenses))
-}, [expenses])
+  useEffect(() => {
+    localStorage.setItem("expenses", JSON.stringify(expenses))
+  }, [expenses])
 
-const balance = income - expenses.reduce((acc, exp) => acc + exp.amount, 0);
+  const balance = income - expenses.reduce((acc, exp) => acc + exp.amount, 0);
+  // computing data for line chart
+  const spendingByDate = expenses.reduce((acc, exp) => {
+    const date = exp.date?.slice(0, 10)
+    acc[date] = (acc[date] || 0) + exp.amount
+    return acc
+  }, {})
+  // spending for category for doughnut chart
+  const spendinByCategory = expenses.reduce((acc, exp) => {
+    const cat = exp.category || "other"
+    acc[cat] = (acc[cat] || 0) + exp.amount
+    return acc
+  }, {})
+  const categoryColors = {
+    food: "#ff4d6d", transport: "#4361ee", utilities: "#f77f00",
+    entertainment: "#7209b7", health: "#2dc653", shopping: "#ff9f1c",
+    education: "#3a86ff", other: "#adb5bd"
+  }
 
+
+
+  const barData = {
+    labels: ["Food", "Transport"],
+    datasets: [
+      {
+        label: "Actual spent",
+        data: [100, 0],
+        backgroundColor: "#ff4d6d",
+        barThickness: 15,
+      },
+      {
+        label: "Budget Limit",
+        data: [10, 200],
+        backgroundColor: "#4361ee",
+        barThickness: 15,
+      },
+    ],
+  }
+
+  const linedata = {
+    labels: Object.keys(spendingByDate),
+    datasets: [
+      {
+        label: "Spending",
+        data: Object.values(spendingByDate),
+        borderColor: "#4361ee",
+        backgroundColor: "#4361ee",
+      },
+    ],
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        }
+      },
+      y: {
+        min: 0,
+        max: 150,
+        ticks: {
+          stepSize: 50
+        },
+        grid: {
+          display: false,
+        }
+      },
+    },
+  }
+
+  const Doughnutdata = {
+    labels: Object.keys(spendinByCategory),
+    datasets: [
+      {
+        data: Object.values(spendinByCategory),
+        backgroundColor: Object.keys(spendinByCategory).map(k => categoryColors[k] || "#adb5bd"),
+
+        cutout: "70%"
+      },
+    ],
+  }
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: {
+          boxWidth: 12,
+          padding: 20,
+          color: "#6b7280",
+          font: {
+            size: 12,
+          },
+        },
+      },
+    },
+
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          color: "#6b7280",
+          font: {
+            size: 12,
+          },
+        },
+      },
+
+      y: {
+        min: 0,
+        max: 150,
+
+        grid: {
+          display: false,
+          color: "#f1f5f9",
+        },
+        ticks: {
+          color: "#6b7280",
+        },
+      },
+    },
+  };
 
   return (
     <>
-    <div className=' flex gap-10  items-center justify-center mt-10'>
+      <div className=' flex gap-10  items-center justify-center mt-10'>
         {/* no one div */}
-<Currentbalance balance={balance}/>
-{/* no 2 div */}
-<Showincome  income={income} setIncome={setIncome}/>
-{/* no 3 div */}
-<Expenser expenses={expenses} setExpense={setExpenses}/>
-{/* no 4 div */}
-<Card3/>
+        <Currentbalance balance={balance} />
+        {/* no 2 div */}
+        <Showincome income={income} setIncome={setIncome} />
+        {/* no 3 div */}
+        <Expenser expenses={expenses} setExpense={setExpenses} />
+        {/* no 4 div */}
+        <Card3 />
 
-    </div>
-    <div className=' flex gap-10 justify-center  items-center p-5 '>
-      <div className="bg-white p-5  w-[600px] rounded-xl shadow-xl">
+      </div>
+      <div className=' flex gap-10 justify-center  items-center p-5 '>
+        <div className="bg-white p-5  w-[600px] rounded-xl shadow-xl">
 
-  <h2 className="text-lg font-semibold mb-4 text-gray-800">
-    Budget vs. Actual Spending
-  </h2>
+          <h2 className="text-lg font-semibold mb-4 text-gray-800">
+            Budget vs. Actual Spending
+          </h2>
 
-  <Bar data={barData} options={options} />
+          <Bar data={barData} options={options} />
 
-</div>
-<div className='shadow-2xl h-80 w-[600px] rounded-md p-2 flex justify-center items-center'>
-<div className='h-45 w-45  '><Doughnut   data={Doughnutdata}/></div>
-</div>
+        </div>
+        <div className='shadow-2xl h-80 w-[600px] rounded-md p-2 flex justify-center items-center'>
+          <div className='h-45 w-45  '><Doughnut data={Doughnutdata} /></div>
+        </div>
 
-</div>
-<div className='flex gap-10  justify-center items-center'>
-<div className='h-100 w-[650px] shadow-2xl p-10  w-[500px] m-2'><b>Spending trend</b><Line data={linedata}/></div>
-<div className=''><h3 className='ml-5 p-2 font-bold'>Expense by category</h3>
-<div className='shadow-2xl h-80 w-[600px] rounded-2xl p-2 flex justify-center items-center'>
-<div className='h-45 w-45  '><Doughnut   data={Doughnutdata}/></div>
-</div>
-</div>
-</div>
-<Button/>
+      </div>
+      <div className='flex gap-10  justify-center items-center'>
+        <div className='h-100 w-[650px] shadow-2xl p-10  w-[500px] m-2'><b>Spending trend</b><Line data={linedata} /></div>
+        <div className=''><h3 className='ml-5 p-2 font-bold'>Expense by category</h3>
+          <div className='shadow-2xl h-80 w-[600px] rounded-2xl p-2 flex justify-center items-center'>
+            <div className='h-45 w-45  '><Doughnut data={Doughnutdata} /></div>
+          </div>
+        </div>
+      </div>
+      <Button />
 
 
     </>
