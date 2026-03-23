@@ -15,12 +15,14 @@ The React Compiler is not enabled on this template because of its impact on dev 
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 
-PROJECT DOCUMENTATION :
+# PROJECT DOCUMENTATION :
 
-Expense Tracker app :
+## Expense Tracker app :
 
 building an expense tracker as a frontend project where i implemented ,
 1. Dashboard
 2. graphs showing expenses track
 3. logging and signing up 
 4. A list showing what was added and what was removed
+5. impementing responsive web design 
+6. improved UI 
