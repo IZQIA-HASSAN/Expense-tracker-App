@@ -29,16 +29,38 @@ ChartJS.register(
 )
 
 const Dashboard = ({ transaction, setTransaction, editTransaction, setEditTransaction }) => {
+
   const [income, setIncome] = useState(() => {
-    const saved = localStorage.getItem("income")
-    const parsed = Number(saved)
-    return isNaN(parsed) ? 0 : parsed
+    try {
+      const saved = localStorage.getItem("income")
+      const parsed = Number(saved)
+      return isNaN(parsed) ? 0 : parsed
+    } catch {
+      return 0
+    }
   })
 
   const [expenses, setExpenses] = useState(() => {
-    const saved = localStorage.getItem("expenses")
-    return saved ? JSON.parse(saved) : []
+    try {
+      const saved = localStorage.getItem("expenses")
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
   })
+
+  const [categoryLimits, setCategoryLimits] = useState(() => {
+    try {
+      const saved = localStorage.getItem("category")
+      return saved ? JSON.parse(saved) : {}
+    } catch {
+      return {}
+    }
+  })
+
+  useEffect(() => {
+    localStorage.setItem('category', JSON.stringify(categoryLimits))
+  }, [categoryLimits])
 
   useEffect(() => {
     localStorage.setItem("income", income)
@@ -57,8 +79,8 @@ const Dashboard = ({ transaction, setTransaction, editTransaction, setEditTransa
     return acc
   }, {})
 
-  // For doughnut chart
-  const spendinByCategory = expenses.reduce((acc, exp) => {
+  // For doughnut + budget progress chart
+  const spendingByCategory = expenses.reduce((acc, exp) => {
     const cat = exp.category || "other"
     acc[cat] = (acc[cat] || 0) + exp.amount
     return acc
@@ -70,24 +92,100 @@ const Dashboard = ({ transaction, setTransaction, editTransaction, setEditTransa
     education: "#3a86ff", other: "#adb5bd"
   }
 
-  const barData = {
-    labels: ["Food", "Transport"],
+  // ✅ Budget Progress — horizontal bar chart connected to categoryLimits
+  const budgetCategories = Object.keys(categoryLimits)
+  const budgetProgressData = {
+    labels: budgetCategories.map(c => c.charAt(0).toUpperCase() + c.slice(1)),
     datasets: [
-      { label: "Actual spent", data: [100, 0], backgroundColor: "#ff4d6d", barThickness: 15 },
-      { label: "Budget Limit", data: [10, 200], backgroundColor: "#4361ee", barThickness: 15 },
+      {
+        label: "Actual Spent",
+        data: budgetCategories.map(cat => spendingByCategory[cat] || 0),
+        backgroundColor: budgetCategories.map(cat => {
+          const spent = spendingByCategory[cat] || 0
+          const limit = categoryLimits[cat] || 1
+          const ratio = spent / limit
+          if (ratio >= 1) return "#ef4444"    // over budget — red
+          if (ratio >= 0.75) return "#f97316" // close — orange
+          return "#22c55e"                     // safe — green
+        }),
+        barThickness: 18,
+        borderRadius: 6,
+      },
+      {
+        label: "Budget Limit",
+        data: budgetCategories.map(cat => categoryLimits[cat] || 0),
+        backgroundColor: "#bfdbfe",
+        barThickness: 18,
+        borderRadius: 6,
+      },
+    ],
+  }
+
+  const budgetProgressOptions = {
+    indexAxis: "y", // ✅ makes it horizontal
+    responsive: true,
+    plugins: {
+      legend: { position: "bottom" },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const cat = budgetCategories[ctx.dataIndex]
+            const spent = spendingByCategory[cat] || 0
+            const limit = categoryLimits[cat] || 1
+            const pct = Math.round((spent / limit) * 100)
+            if (ctx.dataset.label === "Actual Spent") {
+              return ` Spent: $${spent} (${pct}% of budget)`
+            }
+            return ` Limit: $${limit}`
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: { callback: val => `$${val}` },
+        grid: { display: false }
+      },
+      y: {
+        grid: { display: false }
+      }
+    }
+  }
+
+  // Budget vs Actual (vertical grouped bar — top left chart)
+  const barData = {
+    labels: budgetCategories.map(c => c.charAt(0).toUpperCase() + c.slice(1)),
+    datasets: [
+      {
+        label: "Actual Spent",
+        data: budgetCategories.map(cat => spendingByCategory[cat] || 0),
+        backgroundColor: "#ff4d6d",
+        barThickness: 15
+      },
+      {
+        label: "Budget Limit",
+        data: budgetCategories.map(cat => categoryLimits[cat] || 0),
+        backgroundColor: "#4361ee",
+        barThickness: 15
+      },
     ],
   }
 
   const linedata = {
     labels: Object.keys(spendingByDate),
-    datasets: [{ label: "Spending", data: Object.values(spendingByDate), borderColor: "#4361ee", backgroundColor: "#4361ee" }],
+    datasets: [{
+      label: "Spending",
+      data: Object.values(spendingByDate),
+      borderColor: "#4361ee",
+      backgroundColor: "#4361ee"
+    }],
   }
 
   const Doughnutdata = {
-    labels: Object.keys(spendinByCategory),
+    labels: Object.keys(spendingByCategory),
     datasets: [{
-      data: Object.values(spendinByCategory),
-      backgroundColor: Object.keys(spendinByCategory).map(k => categoryColors[k] || "#adb5bd"),
+      data: Object.values(spendingByCategory),
+      backgroundColor: Object.keys(spendingByCategory).map(k => categoryColors[k] || "#adb5bd"),
       cutout: "70%"
     }],
   }
@@ -98,33 +196,45 @@ const Dashboard = ({ transaction, setTransaction, editTransaction, setEditTransa
     <>
       <div className='flex gap-10 items-center justify-center mt-10'>
         <Currentbalance balance={balance} />
-        <Showincome 
-          income={income} 
-          setIncome={setIncome} 
-          transaction={transaction} 
-          setTransaction={setTransaction} 
-          editTransaction={editTransaction} 
-          setEditTransaction={setEditTransaction} 
+        <Showincome
+          income={income}
+          setIncome={setIncome}
+          transaction={transaction}
+          setTransaction={setTransaction}
+          editTransaction={editTransaction}
+          setEditTransaction={setEditTransaction}
         />
-        <Expenser 
-          expenses={expenses} 
-          setExpense={setExpenses} 
-          transaction={transaction} 
-          setTransaction={setTransaction} 
-          editTransaction={editTransaction} 
-          setEditTransaction={setEditTransaction} 
+        <Expenser
+          expenses={expenses}
+          setExpense={setExpenses}
+          transaction={transaction}
+          setTransaction={setTransaction}
+          editTransaction={editTransaction}
+          setEditTransaction={setEditTransaction}
         />
-        <Card3 />
+        <Card3 categoryLimits={categoryLimits} setCategoryLimits={setCategoryLimits} />
       </div>
 
       <div className='flex gap-10 justify-center items-center p-5'>
+
+        {/* Budget vs Actual Spending — vertical grouped bar */}
         <div className="bg-white p-5 w-[600px] rounded-xl shadow-xl">
           <h2 className="text-lg font-semibold mb-4 text-gray-800">Budget vs. Actual Spending</h2>
-          <Bar data={barData} options={options} />
+          {budgetCategories.length > 0
+            ? <Bar data={barData} options={options} />
+            : <p className="text-gray-400 text-center mt-10">No budget limits set yet</p>
+          }
         </div>
-        <div className='shadow-2xl h-80 w-[600px] rounded-md p-2 flex justify-center items-center'>
-          <Doughnut data={Doughnutdata} />
+
+        {/* ✅ Budget Progress — horizontal bar connected to categoryLimits */}
+        <div className="bg-white p-5 w-[600px] rounded-xl shadow-xl">
+          <h2 className="text-lg font-semibold mb-4 text-gray-800">Budget Progress</h2>
+          {budgetCategories.length > 0
+            ? <Bar data={budgetProgressData} options={budgetProgressOptions} />
+            : <p className="text-gray-400 text-center mt-10">No budget limits set yet</p>
+          }
         </div>
+
       </div>
 
       <div className='flex gap-10 justify-center items-center'>
@@ -135,7 +245,7 @@ const Dashboard = ({ transaction, setTransaction, editTransaction, setEditTransa
         <div>
           <h3 className='ml-5 p-2 font-bold'>Expense by category</h3>
           <div className='shadow-2xl h-80 w-[600px] rounded-2xl p-2 flex justify-center items-center'>
-            {/* <Doughnut data={Doughnutdata} /> */}
+            <Doughnut data={Doughnutdata} />
           </div>
         </div>
       </div>
