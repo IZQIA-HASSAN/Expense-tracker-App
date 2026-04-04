@@ -28,8 +28,7 @@ const Login = () => {
         }
         localStorage.setItem("currentuser" , JSON.stringify(user))
         alert(`welcome back ${user.username}`)
-        // setLoggedin(user.username)
-        // console.log(user.username)
+  
         navigate("/")
         
     }

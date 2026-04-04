@@ -20,6 +20,22 @@ function App() {
   useEffect(()=>{
     localStorage.setItem("transaction" , JSON.stringify(transaction))
   }, [transaction])
+
+  const [theme, setTheme] = useState(
+    localStorage.getItem("theme") || "light"
+  );
+
+  useEffect(() => {
+    const root = document.documentElement;
+
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+
+    localStorage.setItem("theme", theme);
+  }, [theme]);
   
   return (
     <BrowserRouter>
@@ -34,6 +50,8 @@ function App() {
         setTransaction={setTransaction} 
         editTransaction={editTransaction} 
         setEditTransaction={setEditTransaction} 
+        theme={theme}
+        setTheme={setTheme}
         />
         </Protectedroute>
 

@@ -4,14 +4,34 @@ import hide from "./assets/hide.svg"
 import show from "./assets/Show.svg"
 import expense from "./assets/expense.png"
 import {Link, useNavigate} from "react-router-dom"
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "./firebase";
 
 const Signup = () => {
     const navigate = useNavigate();
+   const handleGoogleSignup = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+
+    const googleUser = {
+      username: user.displayName,
+      email: user.email,
+    };
+
+    localStorage.setItem("currentuser", JSON.stringify(googleUser));
+    navigate("/");
+  } catch (error) {
+    console.log(error); // ← change alert to console.log
+    alert(error.message); // ← show real error message
+  }
+};
     const [FormData , setFormData] = useState({
         username:"",
         email:"",
         password:""
     })
+
 
     const Handlesignup = (e)=>{
         e.preventDefault();
@@ -60,7 +80,7 @@ const Signup = () => {
             Signup
           </button>
 
-          <button type="button" className='w-full h-10 flex justify-center items-center bg-gray-300 rounded-md shadow-2xl'>
+          <button onClick={handleGoogleSignup} type="button" className='w-full h-10 flex justify-center items-center bg-gray-300 rounded-md shadow-2xl transition-all duration-100 ease-out scale-95 active:scale-100'>
             <img src={google} className='w-7' alt="" />
           </button>
 

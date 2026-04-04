@@ -198,7 +198,7 @@ const Dashboard = ({ transaction, setTransaction, editTransaction, setEditTransa
   const options = { responsive: true, plugins: { legend: { position: "bottom" } } }
 
   return (
-    <>
+    <div>
       {/* Cards row — flex-wrap so cards wrap on smaller screens */}
        {notification && (
         <Notification
@@ -208,7 +208,9 @@ const Dashboard = ({ transaction, setTransaction, editTransaction, setEditTransa
         
         />
       )}
-      <Navbar/>
+      <Navbar
+      
+      />
       <div className='flex flex-wrap gap-10 items-center justify-center mt-10'>
         
         <Currentbalance balance={balance} />
@@ -276,7 +278,7 @@ const Dashboard = ({ transaction, setTransaction, editTransaction, setEditTransa
         editTransaction={editTransaction} 
         setEditTransaction={setEditTransaction} 
       />
-    </>
+    </div>
   )
 }
 

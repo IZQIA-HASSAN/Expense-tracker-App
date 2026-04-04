@@ -14,7 +14,7 @@ const Navbar = () => {
     }
 
     return (
-        <div className='shadow-md w-full bg-white'>
+        <div className='shadow-md w-full bg-white dark:bg-gray-800 text-black dark:text-white'>
             {/* Main bar */}
             <div className='flex justify-between md:justify-around items-center px-4 md:px-0'>
                 {/* Logo */}
@@ -40,6 +40,8 @@ const Navbar = () => {
                     <li className='text-blue-500 font-bold'>{user?.username}</li>
 
                     <div className='h-10 rounded-full flex justify-center items-center w-10 border-gray-600 hover:bg-gray-500 transition-all ease-out duration-100 scale-100 active:scale-90'>
+                       
+                        
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="24"
@@ -55,6 +57,7 @@ const Navbar = () => {
                         >
                             <path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" />
                         </svg>
+                        
                     </div>
 
                     <li onClick={Handlelogout} className='font-bold flex items-center gap-3 cursor-pointer'>
