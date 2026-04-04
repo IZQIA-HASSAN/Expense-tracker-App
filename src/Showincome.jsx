@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import cross from "./assets/cross.svg"
+import Notification from './Notification'
 
-const Showincome = ({ income, setIncome, transaction, setTransaction, editTransaction, setEditTransaction }) => {
+const Showincome = ({ income, setIncome, transaction, setTransaction, editTransaction, setEditTransaction , notification , setNotification }) => {
   
   const [showIncome, setShowIncome] = useState(false)
   const [formData, setFormData] = useState({ name: "", amount: "", date: "" })
@@ -35,6 +36,7 @@ const Showincome = ({ income, setIncome, transaction, setTransaction, editTransa
       const oldAmount = editTransaction.amount
       setIncome(prev => prev - oldAmount + numAmount)
       setEditTransaction(null)
+      setNotification({message : "income updated" , type:'success'})
     } else {
       // Add new transaction
       const newTransaction = {
@@ -55,7 +57,7 @@ const Showincome = ({ income, setIncome, transaction, setTransaction, editTransa
   }
 
   return (
-    <div>
+    <div className=''>
       <div className='border-4 border-green-600 h-45 w-70 p-5 rounded-md shadow-2xl'>
         <p className='font-light'>Total Income</p>
         <h1 className='text-2xl text-green-600 font-bold p-2'>${income}</h1>
@@ -65,6 +67,7 @@ const Showincome = ({ income, setIncome, transaction, setTransaction, editTransa
         >
           Add Income
         </button>
+       
 
         {showIncome && (
           <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/30 z-40">
@@ -134,6 +137,7 @@ const Showincome = ({ income, setIncome, transaction, setTransaction, editTransa
           </div>
         )}
       </div>
+      
     </div>
   )
 }

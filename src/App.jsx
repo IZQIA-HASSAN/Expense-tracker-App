@@ -2,6 +2,12 @@ import { useEffect, useState } from 'react'
 import Navbar from './Navbar'
 import Dashboard from './Dashboard'
 import Table from  "./Table"
+import Signup from './Signup'
+import Login from "./Login"
+import {BrowserRouter , Routes ,Route} from "react-router-dom"
+import Protectedroute from "./Protectedroute";
+
+
 
 function App() {
   const [editTransaction , setEditTransaction] = useState(null)
@@ -16,21 +22,26 @@ function App() {
   }, [transaction])
   
   return (
-    <>
-      <Navbar/>
-      <Dashboard 
-        transaction={transaction} 
+    <BrowserRouter>
+    <Routes>
+     
+     <Route path='/Signup' element={<Signup/>}/>
+     <Route path='/Login' element={<Login/>}/>
+      
+      < Route path='/' element={
+        <Protectedroute>
+        <Dashboard transaction={transaction} 
         setTransaction={setTransaction} 
         editTransaction={editTransaction} 
         setEditTransaction={setEditTransaction} 
-      />
-      <Table 
-        transaction={transaction} 
-        setTransaction={setTransaction} 
-        editTransaction={editTransaction} 
-        setEditTransaction={setEditTransaction} 
-      />
-    </>
+        />
+        </Protectedroute>
+
+      } 
+       />
+     
+      </Routes>
+    </BrowserRouter>
   )
 }
 

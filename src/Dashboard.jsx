@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react'
 import Currentbalance from './Currentbalance'
 import Expenser from './Expenser'
 import Showincome from './Showincome'
+import Notification from './Notification'
 import Card3 from './Card3'
+import Navbar from "./Navbar"
+import Table from "./Table"
 import Button from './Button'
 import {
   Chart as ChartJS,
@@ -29,6 +32,8 @@ ChartJS.register(
 )
 
 const Dashboard = ({ transaction, setTransaction, editTransaction, setEditTransaction }) => {
+    const [notification ,setNotification ] = useState(null)
+  
 
   const [income, setIncome] = useState(() => {
     try {
@@ -104,9 +109,9 @@ const Dashboard = ({ transaction, setTransaction, editTransaction, setEditTransa
           const spent = spendingByCategory[cat] || 0
           const limit = categoryLimits[cat] || 1
           const ratio = spent / limit
-          if (ratio >= 1) return "#ef4444"    // over budget — red
-          if (ratio >= 0.75) return "#f97316" // close — orange
-          return "#22c55e"                     // safe — green
+          if (ratio >= 1) return "#ef4444"
+          if (ratio >= 0.75) return "#f97316"
+          return "#22c55e"
         }),
         barThickness: 18,
         borderRadius: 6,
@@ -122,7 +127,7 @@ const Dashboard = ({ transaction, setTransaction, editTransaction, setEditTransa
   }
 
   const budgetProgressOptions = {
-    indexAxis: "y", // ✅ makes it horizontal
+    indexAxis: "y",
     responsive: true,
     plugins: {
       legend: { position: "bottom" },
@@ -194,7 +199,18 @@ const Dashboard = ({ transaction, setTransaction, editTransaction, setEditTransa
 
   return (
     <>
-      <div className='flex gap-10 items-center justify-center mt-10'>
+      {/* Cards row — flex-wrap so cards wrap on smaller screens */}
+       {notification && (
+        <Notification
+        message={notification.message}
+        type={notification.type}
+        onclose={()=>setNotification(null)}
+        
+        />
+      )}
+      <Navbar/>
+      <div className='flex flex-wrap gap-10 items-center justify-center mt-10'>
+        
         <Currentbalance balance={balance} />
         <Showincome
           income={income}
@@ -203,6 +219,7 @@ const Dashboard = ({ transaction, setTransaction, editTransaction, setEditTransa
           setTransaction={setTransaction}
           editTransaction={editTransaction}
           setEditTransaction={setEditTransaction}
+          setNotification={setNotification}
         />
         <Expenser
           expenses={expenses}
@@ -215,10 +232,11 @@ const Dashboard = ({ transaction, setTransaction, editTransaction, setEditTransa
         <Card3 categoryLimits={categoryLimits} setCategoryLimits={setCategoryLimits} />
       </div>
 
-      <div className='flex gap-10 justify-center items-center p-5'>
+      {/* Bar charts row — flex-wrap so charts stack on smaller screens */}
+      <div className='flex flex-wrap gap-10 justify-center items-center p-5'>
 
         {/* Budget vs Actual Spending — vertical grouped bar */}
-        <div className="bg-white p-5 w-[600px] rounded-xl shadow-xl">
+        <div className="bg-white p-5 w-[600px] max-w-[calc(100vw-2.5rem)] rounded-xl shadow-xl">
           <h2 className="text-lg font-semibold mb-4 text-gray-800">Budget vs. Actual Spending</h2>
           {budgetCategories.length > 0
             ? <Bar data={barData} options={options} />
@@ -227,7 +245,7 @@ const Dashboard = ({ transaction, setTransaction, editTransaction, setEditTransa
         </div>
 
         {/* ✅ Budget Progress — horizontal bar connected to categoryLimits */}
-        <div className="bg-white p-5 w-[600px] rounded-xl shadow-xl">
+        <div className="bg-white p-5 w-[600px] max-w-[calc(100vw-2.5rem)] rounded-xl shadow-xl">
           <h2 className="text-lg font-semibold mb-4 text-gray-800">Budget Progress</h2>
           {budgetCategories.length > 0
             ? <Bar data={budgetProgressData} options={budgetProgressOptions} />
@@ -237,20 +255,27 @@ const Dashboard = ({ transaction, setTransaction, editTransaction, setEditTransa
 
       </div>
 
-      <div className='flex gap-10 justify-center items-center'>
-        <div className='h-100 w-[500px] shadow-2xl p-10 m-2'>
+      {/* Line + Doughnut row — flex-wrap so charts stack on smaller screens */}
+      <div className='flex flex-wrap gap-10 justify-center items-center'>
+        <div className='h-100 w-[500px] max-w-[calc(100vw-2.5rem)] shadow-2xl p-10 m-2'>
           <b>Spending trend</b>
           <Line data={linedata} />
         </div>
         <div>
           <h3 className='ml-5 p-2 font-bold'>Expense by category</h3>
-          <div className='shadow-2xl h-80 w-[600px] rounded-2xl p-2 flex justify-center items-center'>
+          <div className='shadow-2xl h-80 w-[600px] max-w-[calc(100vw-2.5rem)] rounded-2xl p-2 flex justify-center items-center'>
             <Doughnut data={Doughnutdata} />
           </div>
         </div>
       </div>
 
       <Button />
+       <Table 
+        transaction={transaction} 
+        setTransaction={setTransaction} 
+        editTransaction={editTransaction} 
+        setEditTransaction={setEditTransaction} 
+      />
     </>
   )
 }
